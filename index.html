@@ -2,25 +2,31 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Acesso ao Sistema</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - SAMU 192</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <form id="form-login">
+        <div class="header-samu">
+            <!-- Logo Vetorial Oficial SAMU 192 via Wikipédia / Wikimedia -->
+            <img src="https://www.gov.br/saude/pt-br/assuntos/balancos/2024/samu-192/imagens/samu-192_logo.png/@@images/image" alt="Logo SAMU 192" class="logo-samu">
             <h4>Acesso ao Sistema</h4>
-            
+        </div>
+        
+        <form id="form-login">
             <div class="campo-grupo">
-                <input type="email" id="login-email" placeholder="Digite seu E-mail" required autocomplete="email">
+                <label for="login-email" class="label-campo">E-mail do Servidor</label>
+                <input type="email" id="login-email" placeholder="nome@exemplo.com" required autocomplete="email">
             </div>
 
-            <div class="campo-grupo" style="margin-top: 10px;">
-                <input type="text" id="login-matricula" placeholder="Digite sua Matrícula (apenas números)" required inputmode="numeric">
+            <div class="campo-grupo">
+                <label for="login-matricula" class="label-campo">Matrícula</label>
+                <input type="text" id="login-matricula" placeholder="Digite apenas os números" required inputmode="numeric">
             </div>
             
-            <input type="submit" value="Entrar" id="btn-login" style="margin-top: 15px;">
-            <p id="msg-erro" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center;"></p>
+            <input type="submit" value="Entrar no Sistema" id="btn-login">
+            <p id="msg-erro" style="margin-top: 10px; font-weight: bold; font-size: 14px; text-align: center; min-height: 20px;"></p>
         </form>
     </div>
 
@@ -32,12 +38,12 @@
         const msgErro = document.getElementById('msg-erro');
         const btnLogin = document.getElementById('btn-login');
 
-        // Sanitização da matrícula
+        // Remove pontuações da matrícula
         inputMatricula.addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, '');
         });
 
-        // Validação básica do formato de email
+        // Validação sintática do e-mail
         function validarEmail(email) {
             const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return regexEmail.test(email);
@@ -50,35 +56,33 @@
             const matricula = inputMatricula.value.trim();
 
             if (!validarEmail(email)) {
-                msgErro.style.color = '#ef4444';
-                msgErro.innerText = 'Por favor, informe um endereço de e-mail válido.';
+                msgErro.style.color = '#d32f2f';
+                msgErro.innerText = 'Por favor, informe um e-mail válido.';
                 inputEmail.focus();
                 return;
             }
 
             if (matricula === '') {
-                msgErro.style.color = '#ef4444';
-                msgErro.innerText = 'Por favor, informe a matrícula apenas com números.';
+                msgErro.style.color = '#d32f2f';
+                msgErro.innerText = 'Informe a matrícula apenas com números.';
                 inputMatricula.focus();
                 return;
             }
             
             btnLogin.disabled = true;
-            msgErro.style.color = '#4f46e5';
+            msgErro.style.color = '#0d47a1';
             msgErro.innerText = 'Validando e-mail e matrícula...';
 
             fetch(`${script_do_google}?action=login&matricula=${encodeURIComponent(matricula)}&email=${encodeURIComponent(email)}`)
                 .then(res => res.json())
                 .then(data => {
-                    // Caso 1: Já preencheu anteriormente
                     if (data.jaCadastrado === true) {
-                        msgErro.style.color = '#d97706'; // Amarelo/Laranja de alerta
+                        msgErro.style.color = '#d97706';
                         msgErro.innerText = 'Seus dados já foram atualizados.';
                         btnLogin.disabled = false;
                         return;
                     }
 
-                    // Caso 2: Login com sucesso e libera para preencher
                     if (data.auth === true && data.servidor) {
                         msgErro.style.color = '#16a34a';
                         msgErro.innerText = 'Acesso confirmado! Redirecionando...';
@@ -96,15 +100,14 @@
                         }, 600);
 
                     } else {
-                        // Caso 3: Dados inválidos/Não encontrado
-                        msgErro.style.color = '#ef4444';
+                        msgErro.style.color = '#d32f2f';
                         msgErro.innerText = 'Matrícula ou E-mail não localizados!';
                         btnLogin.disabled = false;
                     }
                 })
                 .catch(err => {
                     console.error('Erro de conexão:', err);
-                    msgErro.style.color = '#ef4444';
+                    msgErro.style.color = '#d32f2f';
                     msgErro.innerText = 'Erro de conexão com o servidor.';
                     btnLogin.disabled = false;
                 });
