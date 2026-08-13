@@ -2,14 +2,15 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro do Servidor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cadastro do Servidor - SAMU 192</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .info-card {
             background-color: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            border-radius: var(--radius-md, 10px);
+            border: 1.5px solid #cbd5e1;
+            border-left: 5px solid var(--samu-blue);
+            border-radius: var(--radius-md);
             padding: 1rem;
             margin-bottom: 1.25rem;
         }
@@ -18,7 +19,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem 1rem;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
         .info-grid div {
@@ -26,7 +27,7 @@
         }
 
         .info-grid strong {
-            color: var(--text-main, #0f172a);
+            color: var(--samu-blue);
         }
 
         .info-linha-inteira {
@@ -36,23 +37,7 @@
             border-top: 1px dashed #cbd5e1;
         }
 
-        .label-campo {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 0.35rem;
-            color: var(--text-main, #334155);
-        }
-
-        .input-uppercase {
-            text-transform: uppercase;
-        }
-
         @media (max-width: 480px) {
-            .container {
-                padding: 1.5rem 1.25rem;
-            }
-            
             .info-grid {
                 grid-template-columns: 1fr;
             }
@@ -65,9 +50,12 @@
 </head>
 <body>
     <div class="container">
-        <h4>Cadastro do Servidor</h4>
+        <div class="header-samu">
+            <img src="https://www.gov.br/saude/pt-br/assuntos/balancos/2024/samu-192/imagens/samu-192_logo.png/@@images/image" alt="Logo SAMU 192" class="logo-samu">
+            <h4>Cadastro do Servidor</h4>
+        </div>
 
-        <!-- Topo com dados fixos -->
+        <!-- Dados do Servidor -->
         <div class="info-card">
             <div class="info-grid">
                 <div><strong>ID:</strong> <span id="lbl-id">-</span></div>
@@ -79,8 +67,6 @@
         </div>
 
         <form id="formulario-contato" name="formulario-contato">
-            
-            <!-- Campos Ocultos para envio dos dados -->
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="id" id="id">
             <input type="hidden" name="matricula" id="matricula">
@@ -99,35 +85,41 @@
 
             <div class="campo-grupo">
                 <label for="permuta" class="label-campo">Matrícula de quem permutou com você</label>
-                <input type="text" name="permuta" id="permuta" placeholder="999.999-9" maxlength="10">
+                <input type="text" name="permuta" id="permuta" placeholder="999.999-9" maxlength="10" inputmode="numeric">
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="endereco" id="endereco" class="input-uppercase" placeholder="Endereço (Rua/Av.)" required>
+                <label for="endereco" class="label-campo">Endereço (Rua/Av.)</label>
+                <input type="text" name="endereco" id="endereco" class="input-uppercase" placeholder="Ex: RUA DAS FLORES" required>
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="numero" id="numero" class="input-uppercase" placeholder="Número" required>
+                <label for="numero" class="label-campo">Número</label>
+                <input type="text" name="numero" id="numero" class="input-uppercase" placeholder="Ex: 123 OU S/N" required>
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="bairro" id="bairro" class="input-uppercase" placeholder="Bairro" required>
+                <label for="bairro" class="label-campo">Bairro</label>
+                <input type="text" name="bairro" id="bairro" class="input-uppercase" placeholder="Ex: CENTRO" required>
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="cidade" id="cidade" class="input-uppercase" placeholder="Cidade" required>
+                <label for="cidade" class="label-campo">Cidade</label>
+                <input type="text" name="cidade" id="cidade" class="input-uppercase" placeholder="Ex: NATAL" required>
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="estado" id="estado" class="input-uppercase" placeholder="Estado (Ex: RN)" maxlength="2" required>
+                <label for="estado" class="label-campo">Estado (UF)</label>
+                <input type="text" name="estado" id="estado" class="input-uppercase" placeholder="Ex: RN" maxlength="2" required>
             </div>
 
             <div class="campo-grupo">
-                <input type="text" name="cep" id="cep" placeholder="CEP (99.999-999)" maxlength="10" required>
+                <label for="cep" class="label-campo">CEP</label>
+                <input type="text" name="cep" id="cep" placeholder="99.999-999" maxlength="10" inputmode="numeric" required>
             </div>
 
             <input type="submit" value="Atualizar Cadastro" id="btn-salvar">
-            <p id="msg-status" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center;"></p>
+            <p id="msg-status" style="margin-top: 10px; font-weight: bold; font-size: 14px; text-align: center; min-height: 20px;"></p>
         </form>
     </div>
 
@@ -139,32 +131,29 @@
 
             if (!usuarioLogado) {
                 alert('Sessão expirada ou acesso não autorizado! Faça o login novamente.');
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
                 return;
             }
 
-            // Exibição nos labels
             document.getElementById('lbl-id').innerText = usuarioLogado.id || '-';
             document.getElementById('lbl-matricula').innerText = usuarioLogado.matricula || '-';
             document.getElementById('lbl-vinc').innerText = usuarioLogado.vinc || '-';
             document.getElementById('lbl-nome').innerText = usuarioLogado.nome || '-';
             document.getElementById('lbl-email').innerText = (usuarioLogado.email || '-').toUpperCase();
 
-            // Preenche os campos ocultos
             document.getElementById('id').value = usuarioLogado.id || '';
             document.getElementById('matricula').value = usuarioLogado.matricula || '';
             document.getElementById('vinc').value = usuarioLogado.vinc || '';
             document.getElementById('nome').value = usuarioLogado.nome || '';
             document.getElementById('email').value = (usuarioLogado.email || '').toUpperCase();
 
-            // Transformação em maiúsculas
             document.querySelectorAll('.input-uppercase').forEach(input => {
                 input.addEventListener('input', function () {
                     this.value = this.value.toUpperCase();
                 });
             });
 
-            // Máscara da Matrícula de Permuta (999.999-9)
+            // Máscara da Permuta
             const inputPermuta = document.getElementById('permuta');
             inputPermuta.addEventListener('input', function () {
                 let v = this.value.replace(/\D/g, '');
@@ -174,7 +163,7 @@
                 this.value = v;
             });
 
-            // Máscara do CEP (99.999-999)
+            // Máscara do CEP
             const inputCep = document.getElementById('cep');
             inputCep.addEventListener('input', function () {
                 let v = this.value.replace(/\D/g, '');
@@ -185,7 +174,6 @@
             });
         });
 
-        // Envio para Atualização
         document.getElementById('formulario-contato').addEventListener('submit', function (e) {
             e.preventDefault();
 
@@ -193,7 +181,7 @@
             const msgStatus = document.getElementById('msg-status');
 
             btnSalvar.disabled = true;
-            msgStatus.style.color = '#4f46e5';
+            msgStatus.style.color = '#0d47a1';
             msgStatus.innerText = 'Atualizando dados...';
 
             const formData = new FormData(this);
@@ -215,17 +203,17 @@
                     
                     sessionStorage.removeItem('usuario_logado');
                     setTimeout(() => {
-                        window.location.href = 'login.html';
+                        window.location.href = 'index.html';
                     }, 1200);
                 } else {
-                    msgStatus.style.color = '#ef4444';
+                    msgStatus.style.color = '#d32f2f';
                     msgStatus.innerText = 'Erro ao salvar: ' + (data.error || 'Erro desconhecido.');
                     btnSalvar.disabled = false;
                 }
             })
             .catch(error => {
                 console.error('Erro no envio:', error);
-                msgStatus.style.color = '#ef4444';
+                msgStatus.style.color = '#d32f2f';
                 msgStatus.innerText = 'Erro de conexão ao salvar os dados.';
                 btnSalvar.disabled = false;
             });
