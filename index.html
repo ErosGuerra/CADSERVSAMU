@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Acesso ao Sistema</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <form id="form-login">
+            <h4>Acesso ao Sistema</h4>
+            
+            <div class="campo-grupo">
+                <input type="email" id="login-email" placeholder="Digite seu E-mail" required autocomplete="email">
+            </div>
+
+            <div class="campo-grupo" style="margin-top: 10px;">
+                <input type="text" id="login-matricula" placeholder="Digite sua Matrícula (apenas números)" required inputmode="numeric">
+            </div>
+            
+            <input type="submit" value="Entrar" id="btn-login" style="margin-top: 15px;">
+            <p id="msg-erro" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center;"></p>
+        </form>
+    </div>
+
+    <script>
+        const script_do_google = 'https://script.google.com/macros/s/AKfycbwuf_CRCgEHIQIQoT_KG4zBKR6_tQJbux7TqsbuAaIlwGtLcbCjhTKYNqmhNc0R0x2c/exec';
+
+        const inputEmail = document.getElementById('login-email');
+        const inputMatricula = document.getElementById('login-matricula');
+        const msgErro = document.getElementById('msg-erro');
+        const btnLogin = document.getElementById('btn-login');
+
+        // Sanitização da matrícula
+        inputMatricula.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        // Validação básica do formato de email
+        function validarEmail(email) {
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regexEmail.test(email);
+        }
+
+        document.getElementById('form-login').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const email = inputEmail.value.trim().toLowerCase();
+            const matricula = inputMatricula.value.trim();
+
+            if (!validarEmail(email)) {
+                msgErro.style.color = '#ef4444';
+                msgErro.innerText = 'Por favor, informe um endereço de e-mail válido.';
+                inputEmail.focus();
+                return;
+            }
+
+            if (matricula === '') {
+                msgErro.style.color = '#ef4444';
+                msgErro.innerText = 'Por favor, informe a matrícula apenas com números.';
+                inputMatricula.focus();
+                return;
+            }
+            
+            btnLogin.disabled = true;
+            msgErro.style.color = '#4f46e5';
+            msgErro.innerText = 'Validando e-mail e matrícula...';
+
+            fetch(`${script_do_google}?action=login&matricula=${encodeURIComponent(matricula)}&email=${encodeURIComponent(email)}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Caso 1: Já preencheu anteriormente
+                    if (data.jaCadastrado === true) {
+                        msgErro.style.color = '#d97706'; // Amarelo/Laranja de alerta
+                        msgErro.innerText = 'Seus dados já foram atualizados.';
+                        btnLogin.disabled = false;
+                        return;
+                    }
+
+                    // Caso 2: Login com sucesso e libera para preencher
+                    if (data.auth === true && data.servidor) {
+                        msgErro.style.color = '#16a34a';
+                        msgErro.innerText = 'Acesso confirmado! Redirecionando...';
+
+                        sessionStorage.setItem('usuario_logado', JSON.stringify({
+                            id: data.servidor.id,
+                            matricula: data.servidor.matricula,
+                            vinc: data.servidor.vinc,
+                            nome: data.servidor.nome,
+                            email: data.servidor.email
+                        }));
+                        
+                        setTimeout(() => {
+                            window.location.href = './cadastro.html';
+                        }, 600);
+
+                    } else {
+                        // Caso 3: Dados inválidos/Não encontrado
+                        msgErro.style.color = '#ef4444';
+                        msgErro.innerText = 'Matrícula ou E-mail não localizados!';
+                        btnLogin.disabled = false;
+                    }
+                })
+                .catch(err => {
+                    console.error('Erro de conexão:', err);
+                    msgErro.style.color = '#ef4444';
+                    msgErro.innerText = 'Erro de conexão com o servidor.';
+                    btnLogin.disabled = false;
+                });
+        });
+    </script>
+</body>
+</html>

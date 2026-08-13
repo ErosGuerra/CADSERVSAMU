@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro do Servidor</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .info-card {
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: var(--radius-md, 10px);
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .info-grid div {
+            word-break: break-word;
+        }
+
+        .info-grid strong {
+            color: var(--text-main, #0f172a);
+        }
+
+        .info-linha-inteira {
+            grid-column: span 2;
+            margin-top: 0.25rem;
+            padding-top: 0.25rem;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .label-campo {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            color: var(--text-main, #334155);
+        }
+
+        .input-uppercase {
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 1.5rem 1.25rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-linha-inteira {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h4>Cadastro do Servidor</h4>
+
+        <!-- Topo com dados fixos -->
+        <div class="info-card">
+            <div class="info-grid">
+                <div><strong>ID:</strong> <span id="lbl-id">-</span></div>
+                <div><strong>Matrícula:</strong> <span id="lbl-matricula">-</span></div>
+                <div><strong>Vínculo:</strong> <span id="lbl-vinc">-</span></div>
+                <div class="info-linha-inteira"><strong>Nome:</strong> <span id="lbl-nome">-</span></div>
+                <div class="info-linha-inteira"><strong>E-mail:</strong> <span id="lbl-email">-</span></div>
+            </div>
+        </div>
+
+        <form id="formulario-contato" name="formulario-contato">
+            
+            <!-- Campos Ocultos para envio dos dados -->
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="id" id="id">
+            <input type="hidden" name="matricula" id="matricula">
+            <input type="hidden" name="vinc" id="vinc">
+            <input type="hidden" name="nome" id="nome">
+            <input type="hidden" name="email" id="email">
+
+            <!-- Formulario Editável -->
+            <div class="campo-grupo">
+                <label for="devolvido" class="label-campo">Devolvido?</label>
+                <select name="devolvido" id="devolvido" required>
+                    <option value="NÃO">NÃO</option>
+                    <option value="SIM">SIM</option>
+                </select>
+            </div>
+
+            <div class="campo-grupo">
+                <label for="permuta" class="label-campo">Matrícula de quem permutou com você</label>
+                <input type="text" name="permuta" id="permuta" placeholder="999.999-9" maxlength="10">
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="endereco" id="endereco" class="input-uppercase" placeholder="Endereço (Rua/Av.)" required>
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="numero" id="numero" class="input-uppercase" placeholder="Número" required>
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="bairro" id="bairro" class="input-uppercase" placeholder="Bairro" required>
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="cidade" id="cidade" class="input-uppercase" placeholder="Cidade" required>
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="estado" id="estado" class="input-uppercase" placeholder="Estado (Ex: RN)" maxlength="2" required>
+            </div>
+
+            <div class="campo-grupo">
+                <input type="text" name="cep" id="cep" placeholder="CEP (99.999-999)" maxlength="10" required>
+            </div>
+
+            <input type="submit" value="Atualizar Cadastro" id="btn-salvar">
+            <p id="msg-status" style="margin-top: 15px; font-weight: bold; font-size: 14px; text-align: center;"></p>
+        </form>
+    </div>
+
+    <script>
+        const script_do_google = 'https://script.google.com/macros/s/AKfycbwuf_CRCgEHIQIQoT_KG4zBKR6_tQJbux7TqsbuAaIlwGtLcbCjhTKYNqmhNc0R0x2c/exec';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const usuarioLogado = JSON.parse(sessionStorage.getItem('usuario_logado'));
+
+            if (!usuarioLogado) {
+                alert('Sessão expirada ou acesso não autorizado! Faça o login novamente.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Exibição nos labels
+            document.getElementById('lbl-id').innerText = usuarioLogado.id || '-';
+            document.getElementById('lbl-matricula').innerText = usuarioLogado.matricula || '-';
+            document.getElementById('lbl-vinc').innerText = usuarioLogado.vinc || '-';
+            document.getElementById('lbl-nome').innerText = usuarioLogado.nome || '-';
+            document.getElementById('lbl-email').innerText = (usuarioLogado.email || '-').toUpperCase();
+
+            // Preenche os campos ocultos
+            document.getElementById('id').value = usuarioLogado.id || '';
+            document.getElementById('matricula').value = usuarioLogado.matricula || '';
+            document.getElementById('vinc').value = usuarioLogado.vinc || '';
+            document.getElementById('nome').value = usuarioLogado.nome || '';
+            document.getElementById('email').value = (usuarioLogado.email || '').toUpperCase();
+
+            // Transformação em maiúsculas
+            document.querySelectorAll('.input-uppercase').forEach(input => {
+                input.addEventListener('input', function () {
+                    this.value = this.value.toUpperCase();
+                });
+            });
+
+            // Máscara da Matrícula de Permuta (999.999-9)
+            const inputPermuta = document.getElementById('permuta');
+            inputPermuta.addEventListener('input', function () {
+                let v = this.value.replace(/\D/g, '');
+                if (v.length > 7) v = v.substring(0, 7);
+                if (v.length > 3) v = v.replace(/^(\d{3})(\d)/, '$1.$2');
+                if (v.length > 6) v = v.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2-$3');
+                this.value = v;
+            });
+
+            // Máscara do CEP (99.999-999)
+            const inputCep = document.getElementById('cep');
+            inputCep.addEventListener('input', function () {
+                let v = this.value.replace(/\D/g, '');
+                if (v.length > 8) v = v.substring(0, 8);
+                if (v.length > 2) v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+                if (v.length > 5) v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2-$3');
+                this.value = v;
+            });
+        });
+
+        // Envio para Atualização
+        document.getElementById('formulario-contato').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const btnSalvar = document.getElementById('btn-salvar');
+            const msgStatus = document.getElementById('msg-status');
+
+            btnSalvar.disabled = true;
+            msgStatus.style.color = '#4f46e5';
+            msgStatus.innerText = 'Atualizando dados...';
+
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+
+            fetch(script_do_google, { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: params.toString()
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.result === 'success') {
+                    msgStatus.style.color = '#16a34a';
+                    msgStatus.innerText = 'Cadastro atualizado com sucesso!';
+                    alert('Dados atualizados com sucesso!');
+                    
+                    sessionStorage.removeItem('usuario_logado');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1200);
+                } else {
+                    msgStatus.style.color = '#ef4444';
+                    msgStatus.innerText = 'Erro ao salvar: ' + (data.error || 'Erro desconhecido.');
+                    btnSalvar.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Erro no envio:', error);
+                msgStatus.style.color = '#ef4444';
+                msgStatus.innerText = 'Erro de conexão ao salvar os dados.';
+                btnSalvar.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
